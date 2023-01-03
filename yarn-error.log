@@ -1,5 +1,5 @@
 Arguments: 
-  C:\Program Files\nodejs\node.exe C:\Users\91629\AppData\Roaming\npm\node_modules\yarn\bin\yarn.js add @aws-sdk/s3-request-presigner
+  C:\Program Files\nodejs\node.exe C:\Users\91629\AppData\Roaming\npm\node_modules\yarn\bin\yarn.js add axios
 
 PATH: 
   C:\Program Files\PowerShell\7;C:\oraclexe\app\oracle\product\11.2.0\server\bin;;C:\Program Files\Common Files\Oracle\Java\javapath;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\WINDOWS\System32\OpenSSH\;C:\MinGW\bin;C:\ProgramData\chocolatey\bin;C:\Program Files\nodejs\;C:\Users\91629\Downloads\nvim-win64\nvim-win64\bin;C:\Program Files\PowerShell\7\;C:\Program Files (x86)\Git\cmd;C:\Program Files\Amazon\AWSCLIV2\;C:\Program Files\Amazon\AWSSAMCLI\bin\;C:\Users\91629\scoop\shims;C:\Users\91629\AppData\Local\Programs\Python\Python310\Scripts\;C:\Users\91629\AppData\Local\Programs\Python\Python310\;C:\Users\91629\AppData\Local\Microsoft\WindowsApps;C:\Users\91629\AppData\Local\Programs\Microsoft VS Code\bin;C:\Program Files\MongoDB\Server\5.0\bin;C:\Program Files\JetBrains\IntelliJ IDEA Community Edition 2021.3.1\bin;C:\Program Files\heroku\bin;C:\Users\91629\AppData\Local\Programs\Microsoft VS Code Insiders\bin;C:\Users\91629\AppData\Roaming\npm;%USERPROFILE%\AppData\Local\Microsoft\WindowsApps
@@ -14,7 +14,7 @@ Platform:
   win32 x64
 
 Trace: 
-  Error: EPERM: operation not permitted, unlink 'D:\Connection-s\Storing_Images_in_S3_from_Node_Server\mySimpleHTML\node_modules\prisma\engines\d6e67a83f971b175a593ccc12e15c4a757f93ffe\query_engine-windows.dll.node'
+  Error: EPERM: operation not permitted, unlink 'D:\Connection-s\Storing_Images_in_S3_from_Node_Server\mySimpleHTML\node_modules\@prisma\engines\query_engine-windows.dll.node'
 
 npm manifest: 
   {

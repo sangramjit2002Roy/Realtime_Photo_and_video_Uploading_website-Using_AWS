@@ -5,7 +5,12 @@ import sharp from "sharp";
 
 import { PrismaClient } from "@prisma/client";
 
-import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
+import {
+  S3Client,
+  PutObjectCommand,
+  GetObjectCommand,
+} from "@aws-sdk/client-s3";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
 import dotenv from "dotenv";
 dotenv.config();
@@ -40,7 +45,20 @@ app.use(express.static("./public"));
 
 // routes
 app.get("/api/posts", async (req, res) => {
+  // < Generate URL's From the server That will allow users to see the images for a temporary ammount of time >
+  // summary: Generating Signed URL (Allowing access temporaryly to the image)
   const posts = await prisma.posts.findMany({ orderBy: [{ created: "desc" }] });
+  for(const post of posts){
+    const getObjectParams = {
+      Bucket: bucketName,
+      Key: post.imageName,
+    }
+    const command = new GetObjectCommand(getObjectParams);
+    const url = await getSignedUrl(s3, command, { expiresIn: 3600 }); //3600 second = 1 hour
+    post.imageUrl = url
+    // </ Generate URL's From the server That will allow users to see the images for a temporary ammount of time >
+  }
+
   res.send(posts);
 });
 app.post("/api/posts", upload.single("image"), async (req, res) => {
@@ -48,9 +66,11 @@ app.post("/api/posts", upload.single("image"), async (req, res) => {
   console.log(req.file);
   try {
     // resizing image
-    const buffer = await sharp(req.file.buffer).resize({height: 1920,width: 1080,fit: "contain"}).toBuffer()//fit: "contain" err maney holo besi stretched jeno naa lagey
+    const buffer = await sharp(req.file.buffer)
+      .resize({ height: 1920, width: 1080, fit: "contain" })
+      .toBuffer(); //fit: "contain" err maney holo besi stretched jeno naa lagey
 
-    const imageName = randomImageName()
+    const imageName = randomImageName();
     const params = {
       Bucket: bucketName,
       Key: imageName,
@@ -64,18 +84,14 @@ app.post("/api/posts", upload.single("image"), async (req, res) => {
     const post = await prisma.posts.create({
       data: {
         caption: req.body.caption,
-        imageName: imageName
-      }
-    })
+        imageName: imageName,
+      },
+    });
     // </ SAVING_THE_DATA_TO_THE_DATABASE_(mongoDB) >
 
-    // < Generate URL's From the server That will allow users to see the images for a temporary ammount of time >
 
-    
-    // </ Generate URL's From the server That will allow users to see the images for a temporary ammount of time >
 
     res.send(post);
-
   } catch (error) {
     console.log(error);
     res.status(404).send(`msg: ${error}`);

@@ -1,6 +1,7 @@
 import express from "express";
 import multer from "multer";
 import crypto from "crypto";
+import sharp from "sharp";
 
 import { PrismaClient } from "@prisma/client";
 
@@ -43,11 +44,15 @@ app.get("/api/posts", async (req, res) => {
   res.send(posts);
 });
 app.post("/api/posts", upload.single("image"), async (req, res) => {
+  console.log(req.body);
+  console.log(req.file);
   try {
+    // resizing image
+    const buffer = await sharp(req.file.buffer).resize({height: 1920,width: 1080,fit: "contain"}).toBuffer()//fit: "contain" err maney holo besi stretched jeno naa lagey
     const params = {
       Bucket: bucketName,
       Key: randomImageName(),
-      Body: req.file.buffer,
+      Body: buffer,
       ContentType: req.file.mimetype,
     };
     const command = new PutObjectCommand(params);

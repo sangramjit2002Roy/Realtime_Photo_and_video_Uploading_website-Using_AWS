@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>S3 NewPost</title>
+</head>
+<style>
+    html,
+    body {
+        margin: 0;
+        padding: 0;
+        background-color: aliceblue;
+    }
+    a{
+        text-decoration: none;
+    }
+</style>
+
+<body>
+    <div class="container">
+        <form action="/api/posts" method="POST" enctype="multipart/form-data">
+            <input type="file" name="image" accept="image/*" >
+            <input type="text" name="caption" placeholder="Caption" >
+            <button type="submit">Submit</button>
+        </form>
+    </div>
+    <a class="rli" href="index.html">Back</a>
+</body>
+
+</html>

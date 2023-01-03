@@ -49,15 +49,33 @@ app.post("/api/posts", upload.single("image"), async (req, res) => {
   try {
     // resizing image
     const buffer = await sharp(req.file.buffer).resize({height: 1920,width: 1080,fit: "contain"}).toBuffer()//fit: "contain" err maney holo besi stretched jeno naa lagey
+
+    const imageName = randomImageName()
     const params = {
       Bucket: bucketName,
-      Key: randomImageName(),
+      Key: imageName,
       Body: buffer,
       ContentType: req.file.mimetype,
     };
     const command = new PutObjectCommand(params);
     await s3.send(command);
-    res.send(`Done`);
+    // < SAVING_THE_DATA_TO_THE_DATABASE_(mongoDB) >
+    // Image_name diye save korchi image takey dataBase ee karon holo pore retrive korbo Image_name diye ee
+    const post = await prisma.posts.create({
+      data: {
+        caption: req.body.caption,
+        imageName: imageName
+      }
+    })
+    // </ SAVING_THE_DATA_TO_THE_DATABASE_(mongoDB) >
+
+    // < Generate URL's From the server That will allow users to see the images for a temporary ammount of time >
+
+    
+    // </ Generate URL's From the server That will allow users to see the images for a temporary ammount of time >
+
+    res.send(post);
+
   } catch (error) {
     console.log(error);
     res.status(404).send(`msg: ${error}`);

@@ -12,6 +12,10 @@ import {
   DeleteObjectCommand,
 } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/cloudfront-signer";
+import {
+  CloudFrontClient,
+  CreateInvalidationCommand,
+} from "@aws-sdk/client-cloudfront";
 
 import dotenv from "dotenv";
 dotenv.config();
@@ -24,6 +28,8 @@ const bucketName = process.env.BUCKET_NAME;
 const bucketRegion = process.env.BUCKET_REGION;
 const accessKey = process.env.ACCESS_KEY;
 const secretAccessKey = process.env.SECRET_ACCESS_KEY;
+
+const cloudFrontDistId = process.env.CLOUD_FRONT_DIST_ID
 // console.log(bucketName);
 // console.log(bucketRegion);
 // console.log(accessKey);
@@ -34,6 +40,13 @@ const s3 = new S3Client({
     secretAccessKey: secretAccessKey,
   },
   region: bucketRegion,
+});
+
+const cloudFront = new CloudFrontClient({
+  credentials: {
+    accessKeyId: accessKey,
+    secretAccessKey: secretAccessKey,
+  },
 });
 
 const app = express();
@@ -191,7 +204,7 @@ app.post("/api/deletePost/:id", async (req, res) => {
     res.status(404).send("Post not found");
     return;
   }
-
+  //< Delete Image from s3>
   const params = {
     Bucket: bucketName,
     Key: post.imageName,
@@ -199,9 +212,24 @@ app.post("/api/deletePost/:id", async (req, res) => {
   const command = new DeleteObjectCommand(params);
 
   await s3.send(command);
-
-  // await deleteFile(post.imageName);
+  //</ Delete Image from s3>
+  // <Invalidate the cloud front cache image url for that image>
+  const invalidationParams = {
+    DistributionId: cloudFrontDistId,
+    InvalidationBatch: {
+      CallerReference: post.imageName,
+      Paths: {
+        Quantity: 1,
+        Items: ["/" + post.imageName],
+      },
+    },
+  };
+  const invalidationCommand = new CreateInvalidationCommand(invalidationParams)
+  await cloudFront.send(invalidationCommand)
+  // </Invalidate the cloud front cache image url for that image>
+  // <Delete the post from the DataBase
   await prisma.posts.delete({ where: { id } });
+  // </Delete the post from the DataBase
   res.redirect("/");
 });
 app.listen(3000, console.log(`server is running on port 3000...`));

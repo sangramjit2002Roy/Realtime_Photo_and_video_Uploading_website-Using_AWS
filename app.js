@@ -46,10 +46,15 @@ app.use(express.static("./public"));
 
 // routes
 app.get("/api/posts", async (req, res) => {
-  // < Generate URL's From the server That will allow users to see the images for a temporary ammount of time >
-  // summary: Generating Signed URL (Allowing access temporaryly to the image)
   const posts = await prisma.posts.findMany({ orderBy: [{ created: "desc" }] });
   for (const post of posts) {
+    // <Creating CloudFront CDN unSignedURL for all part of the world> //the url is unsigned bcoz the reason is in "aws-cloudFront-CDN_(first-practice" google docs
+    post.imageUrl = "https://d1hbedbhdyyv8r.cloudfront.net/" + post.imageName
+    // </Creating CloudFront CDN unSignedURL for all part of the world>
+    
+    /* //This code is for generating signed url without cdn, the upper part of the code is to generate signed url with cdn.
+    // < Generate URL's From the server That will allow users to see the images for a temporary ammount of time >
+    // summary: Generating Signed URL (Allowing access temporaryly to the image)
     const getObjectParams = {
       Bucket: bucketName,
       Key: post.imageName,
@@ -58,6 +63,7 @@ app.get("/api/posts", async (req, res) => {
     const url = await getSignedUrl(s3, command, { expiresIn: 3600 }); //3600 second = 1 hour
     post.imageUrl = url;
     // </ Generate URL's From the server That will allow users to see the images for a temporary ammount of time >
+    */
   }
 
   res.send(posts);

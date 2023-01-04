@@ -57,16 +57,22 @@
     }
     .allPosts {
       /* border: 2px solid red; */
+      display: flex;
+      justify-content: center;
+      align-items: center;
       margin-bottom: 9px;
       padding: 0;
     }
     .ok {
       display: flex;
-      justify-content: center;
-      align-items: center;
+      /* justify-content: center; */
+      /* align-items: center; */
       flex-direction: column;
     }
     .loading-text {
+      font-size: xx-large;
+    }
+    .loading-textt {
       font-size: xx-large;
     }
     .getAllIMGeUrl {
@@ -74,6 +80,15 @@
       height: 768px;
       padding: 0;
       margin: 0;
+    }
+    img.isx {
+      height: 3vh;
+    }
+    .compp {
+      margin-left: 1vh;
+    }
+    .psg {
+      margin-bottom: 1vh;
     }
   </style>
   <body>
@@ -92,6 +107,10 @@
       </div>
       <div class="ok">
         <p class="loading-text">Loading...</p>
+        <p class="loading-textt">
+          <span>🤕</span>
+          Here is no post available. Please make some Post to see.
+        </p>
       </div>
     </div>
   </body>
@@ -99,10 +118,12 @@
   <script>
     const displayDOM = document.querySelector(".ok");
     const LoadingDOM = document.querySelector(".loading-text");
+    const LoadingODOM = document.querySelector(".loading-textt");
     const showTasks = () => {
       LoadingDOM.style.visibility = "visible";
+      LoadingODOM.style.visibility = "hidden";
       try {
-        console.log("Inside client JS");
+        // console.log("Inside client JS");
         fetch("/api/posts")
           .then((response) => response.json())
           .then((data) => {
@@ -121,13 +142,43 @@
                 const zamp = JSON.parse(zippp);
                 // console.log(zamp);
                 const getAllImgeUrl = zamp.imageUrl;
-                // console.log(typeof getAllImgeUrl); --> string
-                console.log(getAllImgeUrl);
-                output += `<div class="allPosts"><img class="getAllIMGeUrl" width: 430px;
-                height: 768px; src="${getAllImgeUrl}" alt=""></div>`;
+                const getAllImgeCAPTION = zamp.caption;
+                const getAllImgeID = zamp.id;
+                // console.log(typeof getAllImgeUrl); -> string
+                // console.log(getAllImgeUrl);
+                output += `<div class="allPosts">
+                            <div>
+                              <div class="psg">${getAllImgeCAPTION}</div>
+                              <img class="getAllIMGeUrl" width: 430px; height: 768px;
+                              src="${getAllImgeUrl}"
+                              alt="">
+                            </div>
+                            <div class="compp">
+                              <form action="/api/deletePost/${getAllImgeID}" method="POST">
+                                <button type="submit">
+                                  <img
+                                    class="isx"
+                                    src="https://www.clipartmax.com/png/full/84-842915_delete-icon-png-red.png"
+                                    alt="Delete"
+                                    srcset=""
+                                  />
+                                  <div>Delete</div>
+                                </button>
+                              </form>
+                            </div>
+                          </div>`;
               }
             }
-            displayDOM.innerHTML = output;
+            // console.log(`output: ${typeof output}`);
+            // console.log(`output len: ${output.length}`);
+            if (output.length == 0) {
+              setTimeout(() => {
+                LoadingDOM.style.visibility = "hidden";
+                LoadingODOM.style.visibility = "visible";
+              }, 2000);
+            } else {
+              displayDOM.innerHTML = output;
+            }
           })
           .catch((err) => {
             console.log(err);

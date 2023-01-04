@@ -11,7 +11,7 @@ import {
   GetObjectCommand,
   DeleteObjectCommand,
 } from "@aws-sdk/client-s3";
-import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import { getSignedUrl } from "@aws-sdk/cloudfront-signer";
 
 import dotenv from "dotenv";
 dotenv.config();
@@ -48,10 +48,19 @@ app.use(express.static("./public"));
 app.get("/api/posts", async (req, res) => {
   const posts = await prisma.posts.findMany({ orderBy: [{ created: "desc" }] });
   for (const post of posts) {
+    // cloud font signed url
+    post.imageUrl = getSignedUrl({
+      url: "https://d1hbedbhdyyv8r.cloudfront.net/" + post.imageName,
+      dateLessThan: new Date(Date.now() + 1000 * 60 * 15), // 1000 * 60 sec * 60 min * 24 hours * 7 days // now if we want to expires it in 1 day then=> expires: new Date(Date.now() + 1000 * 60 * 60 * 24)
+      privateKey: process.env.CLOUDFRONT_PRIVATE_KEY,
+      keyPairId: process.env.CLOUDFRONT_KEY_PAIR_ID,
+    });
+    /*
+    // cloud font unsigned url
     // <Creating CloudFront CDN unSignedURL for all part of the world> //the url is unsigned bcoz the reason is in "aws-cloudFront-CDN_(first-practice" google docs
     post.imageUrl = "https://d1hbedbhdyyv8r.cloudfront.net/" + post.imageName
     // </Creating CloudFront CDN unSignedURL for all part of the world>
-    
+    */
     /* //This code is for generating signed url without cdn, the upper part of the code is to generate signed url with cdn.
     // < Generate URL's From the server That will allow users to see the images for a temporary ammount of time >
     // summary: Generating Signed URL (Allowing access temporaryly to the image)
